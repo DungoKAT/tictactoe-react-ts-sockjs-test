@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 
 const axiosClient = axios.create({
-    baseURL: "https://tictactoe-javasb-ws-api-test-56fc563f6ba3.herokuapp.com",
+    baseURL: "http://localhost:8080",
     timeout: 5000,
 });
 

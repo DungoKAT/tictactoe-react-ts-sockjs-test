@@ -2,21 +2,20 @@ import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useUserContext } from "../Context/UserContext";
 import { useGameContext } from "../Context/GameContext";
+import Loader from "./Loader";
 import { IoLogOut } from "react-icons/io5";
 import { FaHome } from "react-icons/fa";
 
 const Home = () => {
     const location = useLocation();
-    const { logout, currentUser } = useUserContext();
+    const { isLogin, logout, currentUser } = useUserContext();
     const { createGameRoom, connectGameRoom, connectRandomGameRoom } =
         useGameContext();
     const [size, setSize] = useState<number>(3);
     const [vsText, setVsText] = useState("VS Player");
     const [difficulty, setDifficulty] = useState("Easy");
     const [gameIdInput, setGameIdInput] = useState("");
-
-    console.log("Location: ", location);
-    console.log("Current User: ", currentUser);
+    const [selectedGameHistory, setSelectedGameHistory] = useState("");
 
     type CreateGame = {
         usernameX: string;
@@ -42,7 +41,6 @@ const Home = () => {
             newGame.usernameX !== undefined &&
             newGame.size !== undefined
         ) {
-            console.log("New Game: ", newGame);
             createGameRoom?.(newGame);
         }
     };
@@ -57,7 +55,6 @@ const Home = () => {
             joinGame.usernameO !== undefined &&
             joinGame.gameId !== undefined
         ) {
-            console.log("Join Game: ", joinGame);
             connectGameRoom?.(joinGame);
         }
     };
@@ -70,75 +67,93 @@ const Home = () => {
             joinRandomGame !== undefined &&
             joinRandomGame.usernameO !== undefined
         ) {
-            console.log("Join Random Game: ", joinRandomGame);
             connectRandomGameRoom?.(joinRandomGame);
         }
     };
 
     return (
-        <div className="w-full h-full flex">
-            <div className="p-5 max-w-[300px] w-full h-full flex flex-col bg-components-sidenav">
-                <Link
-                    to="/"
-                    className="mb-3 flex justify-between items-center transition-colors hover:text-gray-600"
-                >
-                    <p className="text-2xl font-semibold">
-                        {currentUser.username}
-                    </p>
-                    <button className="text-2xl">
-                        <FaHome />
-                    </button>
-                </Link>
-                <div className="w-full h-0.5 bg-black"></div>
-                <h3 className="mt-2 mb-2 text-lg font-bold">Game History</h3>
-                {currentUser.gameHistories?.length === 0 && (
-                    <h3>No histories</h3>
-                )}
-                <div className="flex flex-col overflow-y-scroll no-scrollbar">
-                    {currentUser?.gameHistories?.map((game, index) => {
-                        return (
-                            <Link
-                                to={"/game-histories/" + game.gameId}
-                                className="my-2 p-2 text-center border-2 border-components-board rounded-lg transition-colors hover:bg-components-board"
-                                key={index}
-                                onClick={() =>
-                                    console.log("Game Id: ", game.gameId)
-                                }
-                            >
-                                <p>
-                                    {game.playerX?.playerName} VS{" "}
-                                    {game.playerO?.playerName}
-                                </p>
-                            </Link>
-                        );
-                    })}
-                </div>
-                <button
-                    className="mt-auto mb-0 flex items-center text-xl font-semibold transition-colors hover:text-gray-500"
-                    onClick={() => logout(currentUser)}
-                >
-                    <IoLogOut className="mr-3" />
-                    Logout
-                </button>
-            </div>
-            {location.pathname === "/" ? (
-                <GameOptions
-                    vsText={vsText}
-                    size={size}
-                    gameIdInput={gameIdInput}
-                    difficulty={difficulty}
-                    setVsText={setVsText}
-                    setSize={setSize}
-                    setGameIdInput={setGameIdInput}
-                    setDifficulty={setDifficulty}
-                    handleCreatGameRoom={handleCreatGameRoom}
-                    handleJoinRoom={handleJoinRoom}
-                    handleJoinRandomRoom={handleJoinRandomRoom}
-                />
+        <>
+            {!isLogin ? (
+                <Loader />
             ) : (
-                location.pathname.includes("/game-histories") && <Outlet />
+                <div className="w-full h-full flex">
+                    <div className="p-5 max-w-[300px] w-full h-full flex flex-col bg-components-sidenav">
+                        <Link
+                            to="/"
+                            className="mb-3 flex justify-between items-center transition-colors hover:text-gray-600"
+                            onClick={() => setSelectedGameHistory("")}
+                        >
+                            <p className="text-2xl font-semibold">
+                                {currentUser.username}
+                            </p>
+                            <button className="text-2xl">
+                                <FaHome />
+                            </button>
+                        </Link>
+                        <div className="w-full h-0.5 bg-black"></div>
+                        <h3 className="mt-2 mb-2 text-lg font-bold">
+                            Game History
+                        </h3>
+                        {currentUser.gameHistories?.length === 0 && (
+                            <h3>No histories</h3>
+                        )}
+                        <div className="flex flex-col overflow-y-scroll no-scrollbar">
+                            {currentUser?.gameHistories?.map((game, index) => {
+                                return (
+                                    <Link
+                                        to={"/game-histories/" + game.gameId}
+                                        className={
+                                            (selectedGameHistory === game.gameId
+                                                ? "bg-components-board "
+                                                : "bg-transparent ") +
+                                            " my-2 p-2 text-center border-2 border-components-board rounded-lg transition-colors hover:bg-components-board"
+                                        }
+                                        key={index}
+                                        onClick={() => {
+                                            game.gameId !== undefined &&
+                                                setSelectedGameHistory(
+                                                    game.gameId
+                                                );
+                                        }}
+                                    >
+                                        <p>
+                                            {game.playerX?.playerName} VS{" "}
+                                            {game.playerO?.playerName}
+                                        </p>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                        <button
+                            className="mt-auto mb-0 flex items-center text-xl font-semibold transition-colors hover:text-gray-500"
+                            onClick={() => logout(currentUser)}
+                        >
+                            <IoLogOut className="mr-3" />
+                            Logout
+                        </button>
+                    </div>
+                    {location.pathname === "/" ? (
+                        <GameOptions
+                            vsText={vsText}
+                            size={size}
+                            gameIdInput={gameIdInput}
+                            difficulty={difficulty}
+                            setVsText={setVsText}
+                            setSize={setSize}
+                            setGameIdInput={setGameIdInput}
+                            setDifficulty={setDifficulty}
+                            handleCreatGameRoom={handleCreatGameRoom}
+                            handleJoinRoom={handleJoinRoom}
+                            handleJoinRandomRoom={handleJoinRandomRoom}
+                        />
+                    ) : (
+                        location.pathname.includes("/game-histories") && (
+                            <Outlet />
+                        )
+                    )}
+                </div>
             )}
-        </div>
+        </>
     );
 };
 
@@ -171,7 +186,7 @@ const GameOptions = ({
 }: GameOptions) => {
     return (
         <div className="w-full flex flex-col">
-            <div className="my-auto mx-auto flex flex-col items-center">
+            <div className="my-auto px-20 flex flex-col items-center">
                 <p className="mb-20 text-2xl text-white">
                     The game has 3 options - the standard tic-tac-toe(3×3), 5×5
                     and 7×7, where you have to place 4 consecutive X or O to

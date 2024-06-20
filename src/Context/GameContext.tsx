@@ -64,7 +64,6 @@ interface useGameContextType {
     isInGameRoom: boolean;
     allGames: Game[];
     currentGame?: Game;
-    fetchGameById: (param: string) => void;
     createGameRoom?: (createGame: CreateGame) => void;
     connectGameRoom?: (connect: ConnectGame) => void;
     connectRandomGameRoom?: (connectRandom: ConnectRandomGame) => void;
@@ -83,7 +82,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         useLocalStorage("currentGame");
     const {
         getAllGames,
-        getGameById,
         createGame,
         connectGame,
         connectRandomGame,
@@ -94,21 +92,25 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     const [allGames, setAllGames] = useState([]);
     const [isInGameRoom, setIsInGameRoom] = useState(false);
     const [currentGame, setCurrentGame] = useState<Game>(() => {
-        const savedGame: string | null =
-            typeof currentGameLocal === "string" ? currentGameLocal : null;
-        return savedGame ? JSON.parse(savedGame) : null;
+        if (currentGameIdLocal !== undefined && currentGameIdLocal !== "") {
+            const savedGame: string | null =
+                typeof currentGameLocal === "string" ? currentGameLocal : null;
+            return savedGame ? JSON.parse(savedGame) : null;
+        } else {
+            return "";
+        }
     });
 
     useEffect(() => {
         if (currentGame) {
             setCurrentGameLocal(JSON.stringify(currentGame));
+        } else {
+            setCurrentGameLocal("");
         }
     }, [currentGame, setCurrentGameLocal]);
 
     useEffect(() => {
-        const socket = new SockJS(
-            "https://tictactoe-javasb-ws-api-test-56fc563f6ba3.herokuapp.com/game"
-        );
+        const socket = new SockJS("http://localhost:8080/game");
 
         const client = new Client({
             webSocketFactory: () => socket,
@@ -117,17 +119,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
         client.onConnect = () => {
             console.log("Connected to WebSocket: ");
-            console.log("Current Game Id: ", currentGameIdLocal);
             if (currentGameIdLocal !== undefined) {
-                console.log("Check subscribe");
                 client.subscribe("/topic/game-progress/", (message) => {
                     console.log("Message body: ", message.body);
                     const game = JSON.parse(message.body);
-                    console.log("Game Id: ", game.gameId);
-                    console.log(
-                        "Current Game Id message: ",
-                        currentGameIdLocal
-                    );
                     if (game.gameId === currentGameIdLocal) {
                         setCurrentGame(game);
                     }
@@ -160,16 +155,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         fetchAllGames();
     }, [getAllGames]);
 
-    const fetchGameById = async (param: string) => {
-        try {
-            const response = await getGameById(param);
-            console.log("Get Game By Id Response: ", response);
-            return response;
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
     useEffect(() => {
         if (currentGameIdLocal !== undefined && stompClient) {
             const foundGame = allGames.find(
@@ -189,12 +174,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const createGameRoom = async (create: CreateGame) => {
-        console.log("Is create game? : ", create);
         if (create) {
             try {
                 const response = await createGame(create);
                 setCreateOrConnectGame(response.gameId);
-                console.log(`Game room created at ${response.gameId}`);
                 console.log("Create game response:", response);
                 alert("Create game Success");
                 location.reload();
@@ -205,7 +188,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const connectGameRoom = async (connect: ConnectGame) => {
-        console.log("Connect game ? : ", connect);
         if (connect && stompClient) {
             try {
                 const response = await connectGame(connect);
@@ -224,7 +206,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const connectRandomGameRoom = async (connectRandom: ConnectRandomGame) => {
-        console.log("Connect random game ? : ", connectRandom);
         if (connectRandom && stompClient) {
             try {
                 const response = await connectRandomGame(connectRandom);
@@ -240,7 +221,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const playCurrentGame = async (gamePlay: GamePlay) => {
-        console.log("Play game ? : ", gamePlay);
         if (gamePlay && stompClient) {
             try {
                 const response = await playGame(gamePlay);
@@ -256,7 +236,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const surrenderCurrentGame = async (surrender: Surrender) => {
-        console.log("Surrender : ", surrender);
         if (surrender && stompClient) {
             try {
                 const response = await surrenderGame(surrender);
@@ -265,7 +244,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
                     destination: "/topic/game-progress/",
                     body: JSON.stringify(response),
                 });
-                console.log("Surrender game response:", response);
             } catch (err) {
                 console.error("Surrender game failed: ", err);
             }
@@ -273,7 +251,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const terminateCurrentGame = async (param: string) => {
-        console.log("Surrender : ", param);
         if (param && stompClient) {
             try {
                 const response = await terminateGame(param);
@@ -282,7 +259,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
                     destination: "/topic/game-progress/",
                     body: JSON.stringify(response),
                 });
-                console.log("Surrender game response:", response);
             } catch (err) {
                 console.error("Surrender game failed: ", err);
             }
@@ -306,7 +282,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
                 connectRandomGameRoom,
                 playCurrentGame,
                 allGames,
-                fetchGameById,
                 currentGame,
                 surrenderCurrentGame,
                 terminateCurrentGame,

@@ -25,13 +25,11 @@ const loader: LoaderFunction = async ({
 }: LoaderFunctionArgs<ParamsType>) => {
     const { getGameById } = GameRequestApi;
     const { gameId } = params;
-    console.log("Params: ", gameId);
     if (!gameId) {
         throw new Error("Game ID is required");
     } else {
         try {
             const response = await getGameById(gameId);
-            console.log("Get Game By Id Response: ", response);
             return response;
         } catch (err) {
             console.error(err);

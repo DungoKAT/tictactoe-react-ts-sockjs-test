@@ -84,7 +84,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const login = async (user: User) => {
-        console.log("Is Login ? : ", user);
         if (!user.isLogin) {
             try {
                 const response = await loginUser(user);
@@ -138,11 +137,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             }
         };
         fetchCurrentUser();
-    }, [getUserById, checkLoginId, currentLoginIdLocal, loginIdLocalCheckType]);
+    }, [getUserById, currentLoginIdLocal, loginIdLocalCheckType]);
 
     useEffect(() => {
         checkLoginId ? setIsLogin(false) : setIsLogin(true);
-    }, [checkLoginId, currentLoginIdLocal]);
+    }, [checkLoginId]);
 
     useEffect(() => {
         if (

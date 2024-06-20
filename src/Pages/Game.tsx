@@ -1,10 +1,11 @@
 import { useUserContext } from "../Context/UserContext";
 import { useGameContext } from "../Context/GameContext";
+import { useLocalStorage } from "@uidotdev/usehooks";
+import Loader from "./Loader";
 import { FaFlag } from "react-icons/fa6";
 import { RxCross1 } from "react-icons/rx";
 import { BiCircle } from "react-icons/bi";
 import { FaCopy } from "react-icons/fa";
-import { useLocalStorage } from "@uidotdev/usehooks";
 
 const Game = () => {
     interface GamePlay {
@@ -17,7 +18,7 @@ const Game = () => {
         gameId?: string;
         playerSurrender?: string;
     }
-    const { currentUser } = useUserContext();
+    const { isLogin, currentUser } = useUserContext();
     const {
         currentGame,
         playCurrentGame,
@@ -26,7 +27,7 @@ const Game = () => {
     } = useGameContext();
     const [currentGameIdLocal, setCurrentGameIdLocal] =
         useLocalStorage("currentGameId");
-    console.log("Current Game: ", currentGame);
+    const [currentGameLocal] = useLocalStorage("currentGame");
 
     const handlePlayGame = (index: number) => {
         const size = currentGame?.gameBoard?.size;
@@ -77,100 +78,108 @@ const Game = () => {
                     handleBackToHome={handleBackToHome}
                 />
             )}
-
-            <div className="w-full h-full grid grid-cols-12 gap-5">
-                <div className="col-start-2 col-span-2 py-14 flex flex-col items-center">
-                    <h1 className="text-4xl font-semibold text-white">
-                        Player X
-                    </h1>
-                    <h1 className="mt-10 text-4xl font-semibold text-white">
-                        {currentGame?.playerX?.playerName}
-                    </h1>
-                    {isGameNew ? (
+            {isLogin &&
+            (currentGameLocal === undefined || currentGameLocal === "") ? (
+                <Loader />
+            ) : (
+                <div className="w-full h-full grid grid-cols-12 gap-5">
+                    <div className="col-start-2 col-span-2 py-14 flex flex-col items-center">
+                        <h1 className="text-4xl font-semibold text-white">
+                            Player X
+                        </h1>
+                        <h1 className="mt-10 text-4xl font-semibold text-white">
+                            {currentGame?.playerX?.playerName}
+                        </h1>
+                        {isGameNew ? (
+                            <button
+                                className="mt-auto mb-0 py-3 px-5 flex items-center font-semibold text-white bg-components-button rounded-lg transition-colors hover:bg-components-buttonHover"
+                                onClick={() => {
+                                    currentGame?.gameId !== undefined &&
+                                        handleTerminate(currentGame?.gameId);
+                                }}
+                            >
+                                Leave room
+                                <FaFlag className="ml-2" />
+                            </button>
+                        ) : (
+                            currentGame?.playerX?.playerId ===
+                                currentUser?.userId && (
+                                <button
+                                    className="mt-auto mb-0 py-3 px-5 flex items-center font-semibold text-white bg-components-button rounded-lg transition-colors hover:bg-components-buttonHover"
+                                    onClick={() =>
+                                        currentGame?.gameId !== undefined &&
+                                        handleSurrender(
+                                            currentGame?.gameId,
+                                            "X"
+                                        )
+                                    }
+                                >
+                                    Surrender
+                                    <FaFlag className="ml-2" />
+                                </button>
+                            )
+                        )}
+                    </div>
+                    <div className="col-start-5 col-span-4 py-14 flex flex-col items-center">
+                        <h1 className="text-4xl font-semibold text-white">
+                            {isGameFinised
+                                ? "Game Over!"
+                                : !isGameInProgress
+                                ? "Waiting for Player O ..."
+                                : "Turn " + currentGame?.turn}
+                        </h1>
                         <button
-                            className="mt-auto mb-0 py-3 px-5 flex items-center font-semibold text-white bg-components-button rounded-lg transition-colors hover:bg-components-buttonHover"
+                            className={
+                                (isGameInProgress
+                                    ? "opacity-0 pointer-events-none"
+                                    : "opacity-1 pointer-events-auto") +
+                                " mt-10 py-2 px-3 flex items-center text-white bg-components-nav rounded-lg transition-colors hover:bg-gray-600"
+                            }
                             onClick={() => {
                                 currentGame?.gameId !== undefined &&
-                                    handleTerminate(currentGame?.gameId);
+                                    navigator.clipboard.writeText(
+                                        currentGame?.gameId
+                                    );
                             }}
                         >
-                            Leave room
-                            <FaFlag className="ml-2" />
+                            Copy Game ID <FaCopy className="ml-2" />
                         </button>
-                    ) : (
-                        currentGame?.playerX?.playerId ===
+                        {currentGame?.gameBoard?.board !== undefined &&
+                            currentGame?.gameBoard?.size !== undefined &&
+                            currentGame?.turn !== undefined && (
+                                <Board
+                                    board={currentGame?.gameBoard?.board}
+                                    size={currentGame?.gameBoard?.size}
+                                    turn={currentGame?.turn}
+                                    player={player}
+                                    isGameInProgress={isGameInProgress}
+                                    handlePlayGame={handlePlayGame}
+                                />
+                            )}
+                    </div>
+                    <div className="col-start-10 col-span-2 py-14 flex flex-col items-center">
+                        <h1 className="text-4xl font-semibold text-white">
+                            Player O
+                        </h1>
+                        <h1 className="mt-10 text-4xl font-semibold text-white">
+                            {currentGame?.playerO?.playerName}
+                        </h1>
+                        {currentGame?.playerO?.playerId ===
                             currentUser?.userId && (
                             <button
                                 className="mt-auto mb-0 py-3 px-5 flex items-center font-semibold text-white bg-components-button rounded-lg transition-colors hover:bg-components-buttonHover"
                                 onClick={() =>
                                     currentGame?.gameId !== undefined &&
-                                    handleSurrender(currentGame?.gameId, "X")
+                                    handleSurrender(currentGame?.gameId, "O")
                                 }
                             >
                                 Surrender
                                 <FaFlag className="ml-2" />
                             </button>
-                        )
-                    )}
-                </div>
-                <div className="col-start-5 col-span-4 py-14 flex flex-col items-center">
-                    <h1 className="text-4xl font-semibold text-white">
-                        {isGameFinised
-                            ? "Game Over!"
-                            : !isGameInProgress
-                            ? "Waiting for Player O ..."
-                            : "Turn " + currentGame?.turn}
-                    </h1>
-                    <button
-                        className={
-                            (isGameInProgress
-                                ? "opacity-0 pointer-events-none"
-                                : "opacity-1 pointer-events-auto") +
-                            " mt-10 py-2 px-3 flex items-center text-white bg-components-nav rounded-lg transition-colors hover:bg-gray-600"
-                        }
-                        onClick={() => {
-                            currentGame?.gameId !== undefined &&
-                                navigator.clipboard.writeText(
-                                    currentGame?.gameId
-                                );
-                        }}
-                    >
-                        Copy Game ID <FaCopy className="ml-2" />
-                    </button>
-                    {currentGame?.gameBoard?.board !== undefined &&
-                        currentGame?.gameBoard?.size !== undefined &&
-                        currentGame?.turn !== undefined && (
-                            <Board
-                                board={currentGame?.gameBoard?.board}
-                                size={currentGame?.gameBoard?.size}
-                                turn={currentGame?.turn}
-                                player={player}
-                                isGameInProgress={isGameInProgress}
-                                handlePlayGame={handlePlayGame}
-                            />
                         )}
+                    </div>
                 </div>
-                <div className="col-start-10 col-span-2 py-14 flex flex-col items-center">
-                    <h1 className="text-4xl font-semibold text-white">
-                        Player O
-                    </h1>
-                    <h1 className="mt-10 text-4xl font-semibold text-white">
-                        {currentGame?.playerO?.playerName}
-                    </h1>
-                    {currentGame?.playerO?.playerId === currentUser?.userId && (
-                        <button
-                            className="mt-auto mb-0 py-3 px-5 flex items-center font-semibold text-white bg-components-button rounded-lg transition-colors hover:bg-components-buttonHover"
-                            onClick={() =>
-                                currentGame?.gameId !== undefined &&
-                                handleSurrender(currentGame?.gameId, "O")
-                            }
-                        >
-                            Surrender
-                            <FaFlag className="ml-2" />
-                        </button>
-                    )}
-                </div>
-            </div>
+            )}
         </>
     );
 };
