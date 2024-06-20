@@ -110,7 +110,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     }, [currentGame, setCurrentGameLocal]);
 
     useEffect(() => {
-        const socket = new SockJS("http://localhost:8080/game");
+        const socket = new SockJS(
+            "https://tictactoe-javasb-ws-api-test-56fc563f6ba3.herokuapp.com/game"
+        );
 
         const client = new Client({
             webSocketFactory: () => socket,

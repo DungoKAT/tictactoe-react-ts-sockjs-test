@@ -3,6 +3,9 @@ import { useLoaderData, useLocation } from "react-router-dom";
 import Loader from "../../Pages/Loader";
 import { RxCross1 } from "react-icons/rx";
 import { BiCircle } from "react-icons/bi";
+import { MdOutlineReplay } from "react-icons/md";
+import { IoMdSkipForward } from "react-icons/io";
+import { GrCaretNext, GrCaretPrevious } from "react-icons/gr";
 
 interface Player {
     playerId: string;
@@ -101,10 +104,18 @@ const GameHistory = () => {
                             allMoves={allMoves}
                         />
                         <button
-                            className="mt-10 py-3 px-5 text-2xl bg-components-buttonHover rounded-lg transition-colors hover:bg-components-button"
+                            className="mt-10 py-3 px-5 flex items-center text-2xl bg-components-buttonHover rounded-lg transition-colors hover:bg-components-button"
                             onClick={handleReplay}
                         >
-                            {isReplay ? "Skip" : "Replay"}
+                            {isReplay ? (
+                                <>
+                                    Skip <IoMdSkipForward className="ml-2" />
+                                </>
+                            ) : (
+                                <>
+                                    Replay <MdOutlineReplay className="ml-2" />
+                                </>
+                            )}
                         </button>
                         {isReplay && (
                             <div className="mt-5 grid grid-cols-2 gap-5">
@@ -113,10 +124,11 @@ const GameHistory = () => {
                                         (currentMove === 0
                                             ? "bg-gray-500 cursor-not-allowed"
                                             : "bg-components-buttonHover hover:bg-components-button") +
-                                        " py-3 px-5 text-2xl rounded-lg transition-colors"
+                                        " py-3 px-5 flex justify-center items-center text-2xl rounded-lg transition-colors"
                                     }
                                     onClick={handlePrevMove}
                                 >
+                                    <GrCaretPrevious className="mr-2" />{" "}
                                     Previous
                                 </button>
                                 <button
@@ -124,11 +136,11 @@ const GameHistory = () => {
                                         (currentMove === allMoves.length
                                             ? "bg-gray-500 cursor-not-allowed"
                                             : "bg-components-buttonHover hover:bg-components-button") +
-                                        " py-3 px-5 text-2xl rounded-lg transition-colors"
+                                        " py-3 px-5 flex justify-center items-center text-2xl rounded-lg transition-colors"
                                     }
                                     onClick={handleNextMove}
                                 >
-                                    Next
+                                    Next <GrCaretNext className="ml-2" />
                                 </button>
                             </div>
                         )}
