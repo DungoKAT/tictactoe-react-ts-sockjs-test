@@ -184,13 +184,13 @@ const GameOptions = ({
 }: GameOptions) => {
     return (
         <div className="w-full flex flex-col">
-            <div className="mt-40 px-20 max-w-[350px] w-full flex flex-col items-center">
+            <div className="mt-40 px-20 w-full flex flex-col items-center">
                 <p className="mb-20 text-2xl text-white">
                     The game has 3 options - the standard tic-tac-toe(3×3), 5×5
                     and 7×7, where you have to place 4 consecutive X or O to
                     win.
                 </p>
-                <div className="p-5 flex flex-col items-center bg-white rounded-lg">
+                <div className="max-w-[350px] p-5 flex flex-col items-center bg-white rounded-lg">
                     <div className="mb-5 pb-2 grid grid-cols-2">
                         <button
                             className={
