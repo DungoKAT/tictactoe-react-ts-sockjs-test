@@ -2,14 +2,15 @@ import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { LoaderFunction, LoaderFunctionArgs } from "react-router";
 import App from "./App.tsx";
-import Login from "./Pages/Login";
-import Home from "./Pages/Home";
-import GameHistory from "./Components/HomeComponents/GameHistory.tsx";
-import Game from "./Pages/Game.tsx";
 import PrivateRoute from "./Components/ProtectedRoute.tsx/PrivateRoute.tsx";
 import PublicRoute from "./Components/ProtectedRoute.tsx/PublicRoute.tsx";
 import HomeRoute from "./Components/ProtectedRoute.tsx/HomeRoute.tsx";
 import GameRoute from "./Components/ProtectedRoute.tsx/GameRoute.tsx";
+import Login from "./Pages/Login";
+import Home from "./Pages/Home";
+import GameWithBot from "./Components/HomeComponents/GameWithBot.tsx";
+import GameHistory from "./Components/HomeComponents/GameHistory.tsx";
+import Game from "./Pages/Game.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { UserProvider } from "./Context/UserContext.tsx";
 import { GameProvider } from "./Context/GameContext.tsx";
@@ -60,6 +61,10 @@ const router = createBrowserRouter([
                     </PrivateRoute>
                 ),
                 children: [
+                    {
+                        path: "/game-with-bot",
+                        element: <GameWithBot />,
+                    },
                     {
                         path: "/game-histories/:gameId",
                         element: <GameHistory />,

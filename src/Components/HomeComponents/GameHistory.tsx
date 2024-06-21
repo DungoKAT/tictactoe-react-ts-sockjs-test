@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useLocation } from "react-router-dom";
 import Loader from "../../Pages/Loader";
-import { RxCross1 } from "react-icons/rx";
-import { BiCircle } from "react-icons/bi";
+import Board from "../Board";
 import { MdOutlineReplay } from "react-icons/md";
 import { IoMdSkipForward } from "react-icons/io";
 import { GrCaretNext, GrCaretPrevious } from "react-icons/gr";
@@ -101,7 +100,6 @@ const GameHistory = () => {
                         <Board
                             board={isReplay ? boardArrayReplay : boardArrayEnd}
                             size={gameBoard.size}
-                            allMoves={allMoves}
                         />
                         <button
                             className="mt-10 py-3 px-5 flex items-center text-2xl bg-components-buttonHover rounded-lg transition-colors hover:bg-components-button"
@@ -180,51 +178,6 @@ const GameHistory = () => {
                     </div>
                 </>
             )}
-        </div>
-    );
-};
-
-interface BoardInfo {
-    board: string[];
-    size: number;
-    allMoves: Move[];
-}
-
-const Board = ({ board, size }: BoardInfo) => {
-    return (
-        <div
-            className={
-                (size === 3
-                    ? "grid-cols-3 grid-rows-3 gap-5"
-                    : size === 5
-                    ? "grid-cols-5 grid-rows-5 gap-4"
-                    : size === 7 && "grid-cols-7 grid-rows-7 gap-3") +
-                ` w-[620px] h-[620px] mt-20 p-5 grid bg-components-board rounded-xl`
-            }
-        >
-            {Array(size * size)
-                .fill(null)
-                .map((_, index) => (
-                    <SquareButton
-                        key={index}
-                        boardMark={board[index]}
-                        index={index}
-                    />
-                ))}
-        </div>
-    );
-};
-
-interface SquareButtonType {
-    boardMark: string;
-    index: number;
-}
-
-const SquareButton = ({ boardMark }: SquareButtonType) => {
-    return (
-        <div className=" p-2 flex justify-center items-center text-9xl text-components-nav bg-components-sidenav rounded-lg">
-            {boardMark !== null &&
-                (boardMark === "X" ? <RxCross1 /> : <BiCircle />)}
         </div>
     );
 };

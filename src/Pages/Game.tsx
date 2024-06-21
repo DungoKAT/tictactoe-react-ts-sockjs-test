@@ -2,9 +2,8 @@ import { useUserContext } from "../Context/UserContext";
 import { useGameContext } from "../Context/GameContext";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import Loader from "./Loader";
+import Board from "../Components/Board";
 import { FaFlag } from "react-icons/fa6";
-import { RxCross1 } from "react-icons/rx";
-import { BiCircle } from "react-icons/bi";
 import { FaCopy } from "react-icons/fa";
 
 const Game = () => {
@@ -29,11 +28,25 @@ const Game = () => {
         useLocalStorage("currentGameId");
     const [currentGameLocal] = useLocalStorage("currentGame");
 
+    const turn = currentGame?.turn;
+    const size = currentGame?.gameBoard?.size;
+    const board = currentGame?.gameBoard?.board;
+    const boardArray =
+        size !== undefined ? new Array(size * size).fill(null) : [];
+    let counterIndex = 0;
+    if (size && board) {
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                boardArray[counterIndex] = board[i][j];
+                counterIndex++;
+            }
+        }
+    }
+
     const handlePlayGame = (index: number) => {
-        const size = currentGame?.gameBoard?.size;
         let positionX;
         let positionY;
-        if (size !== undefined) {
+        if (size) {
             positionX = Math.floor(index / size);
             positionY = index % size;
         }
@@ -144,18 +157,16 @@ const Game = () => {
                         >
                             Copy Game ID <FaCopy className="ml-2" />
                         </button>
-                        {currentGame?.gameBoard?.board !== undefined &&
-                            currentGame?.gameBoard?.size !== undefined &&
-                            currentGame?.turn !== undefined && (
-                                <Board
-                                    board={currentGame?.gameBoard?.board}
-                                    size={currentGame?.gameBoard?.size}
-                                    turn={currentGame?.turn}
-                                    player={player}
-                                    isGameInProgress={isGameInProgress}
-                                    handlePlayGame={handlePlayGame}
-                                />
-                            )}
+                        {board && size && turn && (
+                            <Board
+                                board={boardArray}
+                                size={size}
+                                turn={turn}
+                                player={player}
+                                isGameInProgress={isGameInProgress}
+                                handlePlayGame={handlePlayGame}
+                            />
+                        )}
                     </div>
                     <div className="col-start-10 col-span-2 py-14 flex flex-col items-center">
                         <h1 className="text-4xl font-semibold text-white">
@@ -181,94 +192,6 @@ const Game = () => {
                 </div>
             )}
         </>
-    );
-};
-
-interface BoardInfo {
-    board: string[][];
-    size: number;
-    turn: string;
-    player: string;
-    isGameInProgress: boolean;
-    handlePlayGame: (index: number) => void;
-}
-
-const Board = ({
-    board,
-    size,
-    turn,
-    player,
-    isGameInProgress,
-    handlePlayGame,
-}: BoardInfo) => {
-    const boardArray = new Array(size * size).fill(null);
-    let counterIndex = 0;
-    for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-            boardArray[counterIndex] = board[i][j];
-            counterIndex++;
-        }
-    }
-    return (
-        <div
-            className={
-                (size === 3
-                    ? "grid-cols-3 grid-rows-3 gap-5"
-                    : size === 5
-                    ? "grid-cols-5 grid-rows-5 gap-4"
-                    : size === 7 && "grid-cols-7 grid-rows-7 gap-3") +
-                ` w-[620px] h-[620px] mt-10 p-5 grid bg-components-board rounded-xl`
-            }
-        >
-            {Array(size * size)
-                .fill(null)
-                .map((_, index) => (
-                    <SquareButton
-                        key={index}
-                        boardMark={boardArray[index]}
-                        turn={turn}
-                        player={player}
-                        isGameInProgress={isGameInProgress}
-                        onClick={() => {
-                            handlePlayGame(index);
-                        }}
-                    />
-                ))}
-        </div>
-    );
-};
-
-interface SquareButtonInfo {
-    boardMark: string;
-    turn: string;
-    player: string;
-    isGameInProgress: boolean;
-    onClick: () => void;
-}
-
-const SquareButton = ({
-    boardMark,
-    turn,
-    player,
-    isGameInProgress,
-    onClick,
-}: SquareButtonInfo) => {
-    const checkBoardMarkIsNull: boolean = boardMark === null;
-    const checkIsPlayerTurn: boolean = turn === player;
-    const isDisabled =
-        !checkBoardMarkIsNull || !checkIsPlayerTurn || !isGameInProgress;
-    return (
-        <button
-            className={
-                (isDisabled ? "cursor-not-allowed" : "cursor-pointer") +
-                " p-2 flex justify-center items-center text-9xl text-components-nav bg-components-sidenav rounded-lg transition-colors hover:bg-gray-400"
-            }
-            onClick={onClick}
-            disabled={isDisabled}
-        >
-            {!checkBoardMarkIsNull &&
-                (boardMark === "X" ? <RxCross1 /> : <BiCircle />)}
-        </button>
     );
 };
 

@@ -1,12 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useUserContext } from "../Context/UserContext";
 import { useGameContext } from "../Context/GameContext";
 import Loader from "./Loader";
+import GameWithBot from "../Components/HomeComponents/GameWithBot";
 import { IoLogOut } from "react-icons/io5";
 import { FaHome } from "react-icons/fa";
+import { useLocalStorage } from "@uidotdev/usehooks";
+
+interface GameWithBotType {
+    isInGame: boolean;
+    username: string;
+    size: number;
+    turn: string;
+    isGameFinished: boolean;
+    winner: string;
+}
 
 const Home = () => {
+    const [gameWithBotLocal, setGameWithBotLocal] =
+        useLocalStorage<GameWithBotType>("gameWithBot");
     const location = useLocation();
     const { isLogin, logout, currentUser } = useUserContext();
     const { createGameRoom, connectGameRoom, connectRandomGameRoom } =
@@ -16,6 +29,19 @@ const Home = () => {
     const [difficulty, setDifficulty] = useState("Easy");
     const [gameIdInput, setGameIdInput] = useState("");
     const [selectedGameHistory, setSelectedGameHistory] = useState("");
+
+    // useEffect(() => {
+    //     const gameWithBot: GameWithBotType = {
+    //         isInGame: false,
+    //         username: currentUser?.username || "",
+    //         size: size,
+    //         turn: "X",
+    //         isGameFinished: false,
+    //         winner: "",
+    //     };
+    //     setGameWithBotLocal(gameWithBot);
+    //     console.log("Game with bot: ", gameWithBot);
+    // }, [currentUser?.username, size, setGameWithBotLocal]);
 
     type CreateGame = {
         usernameX: string;
@@ -71,87 +97,109 @@ const Home = () => {
         }
     };
 
+    const handleCreateBotGame = () => {
+        const gameWithBot: GameWithBotType = {
+            isInGame: true,
+            username: currentUser?.username || "",
+            size: size,
+            turn: "X",
+            isGameFinished: false,
+            winner: "",
+        };
+        setGameWithBotLocal(gameWithBot);
+    };
+
     return (
         <>
             {!isLogin ? (
                 <Loader />
             ) : (
-                <div className="w-full h-full flex">
-                    <div className="p-5 max-w-[300px] w-full h-full flex flex-col bg-components-sidenav">
-                        <Link
-                            to="/"
-                            className="mb-3 flex justify-between items-center transition-colors hover:text-gray-600"
-                            onClick={() => setSelectedGameHistory("")}
-                        >
-                            <p className="text-2xl font-semibold">
-                                {currentUser.username}
-                            </p>
-                            <button className="text-2xl">
-                                <FaHome />
-                            </button>
-                        </Link>
-                        <div className="w-full h-0.5 bg-black"></div>
-                        <h3 className="mt-2 mb-2 text-lg font-bold">
-                            Game History
-                        </h3>
-                        {currentUser.gameHistories?.length === 0 && (
-                            <h3>No histories</h3>
-                        )}
-                        <div className="flex flex-col overflow-y-scroll no-scrollbar">
-                            {currentUser?.gameHistories?.map((game, index) => {
-                                return (
-                                    <Link
-                                        to={"/game-histories/" + game.gameId}
-                                        className={
-                                            (selectedGameHistory === game.gameId
-                                                ? "bg-components-board "
-                                                : "bg-transparent ") +
-                                            " my-2 p-2 text-center border-2 border-components-board rounded-lg transition-colors hover:bg-components-board"
-                                        }
-                                        key={index}
-                                        onClick={() => {
-                                            game.gameId !== undefined &&
-                                                setSelectedGameHistory(
+                <>
+                    <div className="w-full h-full flex">
+                        <div className="p-5 max-w-[300px] w-full h-full flex flex-col bg-components-sidenav">
+                            <Link
+                                to="/"
+                                className="mb-3 flex justify-between items-center transition-colors hover:text-gray-600"
+                                onClick={() => setSelectedGameHistory("")}
+                            >
+                                <p className="text-2xl font-semibold">
+                                    {currentUser.username}
+                                </p>
+                                <button className="text-2xl">
+                                    <FaHome />
+                                </button>
+                            </Link>
+                            <div className="w-full h-0.5 bg-black"></div>
+                            <h3 className="mt-2 mb-2 text-lg font-bold">
+                                Game History
+                            </h3>
+                            {currentUser.gameHistories?.length === 0 && (
+                                <h3>No histories</h3>
+                            )}
+                            <div className="flex flex-col overflow-y-scroll no-scrollbar">
+                                {currentUser?.gameHistories?.map(
+                                    (game, index) => {
+                                        return (
+                                            <Link
+                                                to={
+                                                    "/game-histories/" +
                                                     game.gameId
-                                                );
-                                        }}
-                                    >
-                                        <p>
-                                            {game.playerX?.playerName} VS{" "}
-                                            {game.playerO?.playerName}
-                                        </p>
-                                    </Link>
-                                );
-                            })}
+                                                }
+                                                className={
+                                                    (selectedGameHistory ===
+                                                    game.gameId
+                                                        ? "bg-components-board "
+                                                        : "bg-transparent ") +
+                                                    " my-2 p-2 text-center border-2 border-components-board rounded-lg transition-colors hover:bg-components-board"
+                                                }
+                                                key={index}
+                                                onClick={() => {
+                                                    game.gameId !== undefined &&
+                                                        setSelectedGameHistory(
+                                                            game.gameId
+                                                        );
+                                                }}
+                                            >
+                                                <p>
+                                                    {game.playerX?.playerName}{" "}
+                                                    VS{" "}
+                                                    {game.playerO?.playerName}
+                                                </p>
+                                            </Link>
+                                        );
+                                    }
+                                )}
+                            </div>
+                            <button
+                                className="mt-auto mb-0 flex items-center text-xl font-semibold transition-colors hover:text-gray-500"
+                                onClick={() => logout(currentUser)}
+                            >
+                                <IoLogOut className="mr-3" />
+                                Logout
+                            </button>
                         </div>
-                        <button
-                            className="mt-auto mb-0 flex items-center text-xl font-semibold transition-colors hover:text-gray-500"
-                            onClick={() => logout(currentUser)}
-                        >
-                            <IoLogOut className="mr-3" />
-                            Logout
-                        </button>
+                        {location.pathname === "/" ? (
+                            <GameOptions
+                                vsText={vsText}
+                                size={size}
+                                gameIdInput={gameIdInput}
+                                difficulty={difficulty}
+                                setVsText={setVsText}
+                                setSize={setSize}
+                                setGameIdInput={setGameIdInput}
+                                setDifficulty={setDifficulty}
+                                handleCreatGameRoom={handleCreatGameRoom}
+                                handleJoinRoom={handleJoinRoom}
+                                handleJoinRandomRoom={handleJoinRandomRoom}
+                                handleCreateBotGame={handleCreateBotGame}
+                            />
+                        ) : (
+                            location.pathname.includes("/game-histories") && (
+                                <Outlet />
+                            )
+                        )}
                     </div>
-                    {location.pathname === "/" ? (
-                        <GameOptions
-                            vsText={vsText}
-                            size={size}
-                            gameIdInput={gameIdInput}
-                            difficulty={difficulty}
-                            setVsText={setVsText}
-                            setSize={setSize}
-                            setGameIdInput={setGameIdInput}
-                            setDifficulty={setDifficulty}
-                            handleCreatGameRoom={handleCreatGameRoom}
-                            handleJoinRoom={handleJoinRoom}
-                            handleJoinRandomRoom={handleJoinRandomRoom}
-                        />
-                    ) : (
-                        location.pathname.includes("/game-histories") && (
-                            <Outlet />
-                        )
-                    )}
-                </div>
+                </>
             )}
         </>
     );
@@ -169,6 +217,7 @@ interface GameOptions {
     handleCreatGameRoom: () => void;
     handleJoinRoom: () => void;
     handleJoinRandomRoom: () => void;
+    handleCreateBotGame: () => void;
 }
 
 const GameOptions = ({
@@ -183,16 +232,17 @@ const GameOptions = ({
     handleCreatGameRoom,
     handleJoinRoom,
     handleJoinRandomRoom,
+    handleCreateBotGame,
 }: GameOptions) => {
     return (
         <div className="w-full flex flex-col">
-            <div className="my-auto px-20 flex flex-col items-center">
+            <div className="mt-40 px-20 flex flex-col items-center">
                 <p className="mb-20 text-2xl text-white">
                     The game has 3 options - the standard tic-tac-toe(3×3), 5×5
                     and 7×7, where you have to place 4 consecutive X or O to
                     win.
                 </p>
-                <div className="p-5 flex flex-col items-center bg-white rounded-lg">
+                <div className="max-w-[350px] w-full p-5 flex flex-col items-center bg-white rounded-lg">
                     <div className="mb-5 pb-2 grid grid-cols-2">
                         <button
                             className={
@@ -223,7 +273,7 @@ const GameOptions = ({
                     <SetSizeButton thisSize={7} size={size} setSize={setSize} />
                     {vsText === "VS Player" ? (
                         <>
-                            <div className="w-full mt-3 mb-3 grid grid-cols-4 gap-3">
+                            <div className="w-full mt-2 mb-3 grid grid-cols-4 gap-3">
                                 <input
                                     className="col-span-3 px-2 border-2 border-gray-500 rounded-lg"
                                     type="text"
@@ -256,7 +306,7 @@ const GameOptions = ({
                         </>
                     ) : (
                         <>
-                            <div className="w-full grid grid-cols-2 gap-5">
+                            {/* <div className="w-full grid grid-cols-2 gap-5">
                                 <button
                                     className={
                                         (difficulty === "Easy"
@@ -279,10 +329,14 @@ const GameOptions = ({
                                 >
                                     Hard
                                 </button>
-                            </div>
-                            <button className="mt-auto mb-0 py-2 px-5 text-white bg-components-nav rounded-lg transition-colors hover:bg-gray-700">
+                            </div> */}
+                            <Link
+                                to="/game-with-bot"
+                                className="mt-5 mb-0 py-2 px-5 text-white bg-components-nav rounded-lg transition-colors hover:bg-gray-700"
+                                onClick={handleCreateBotGame}
+                            >
                                 Lets Play!
-                            </button>
+                            </Link>
                         </>
                     )}
                 </div>
