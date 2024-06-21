@@ -184,7 +184,7 @@ const GameOptions = ({
 }: GameOptions) => {
     return (
         <div className="w-full flex flex-col">
-            <div className="my-auto px-20 flex flex-col items-center">
+            <div className="mt-40 px-20 max-w-[350px] w-full flex flex-col items-center">
                 <p className="mb-20 text-2xl text-white">
                     The game has 3 options - the standard tic-tac-toe(3×3), 5×5
                     and 7×7, where you have to place 4 consecutive X or O to
