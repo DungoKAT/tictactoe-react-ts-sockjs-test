@@ -175,11 +175,9 @@ const GameOptions = ({
     vsText,
     size,
     gameIdInput,
-    difficulty,
     setVsText,
     setSize,
     setGameIdInput,
-    setDifficulty,
     handleCreatGameRoom,
     handleJoinRoom,
     handleJoinRandomRoom,
@@ -256,33 +254,9 @@ const GameOptions = ({
                         </>
                     ) : (
                         <>
-                            <div className="w-full grid grid-cols-2 gap-5">
-                                <button
-                                    className={
-                                        (difficulty === "Easy"
-                                            ? "border-components-nav"
-                                            : "border-transparent") +
-                                        " w-full mb-3 py-2 px-5 font-semibold bg-components-buttonHover border-4 rounded-md transition-colors hover:bg-components-button"
-                                    }
-                                    onClick={() => setDifficulty("Easy")}
-                                >
-                                    Easy
-                                </button>
-                                <button
-                                    className={
-                                        (difficulty === "Hard"
-                                            ? "border-components-nav"
-                                            : "border-transparent") +
-                                        " w-full mb-3 py-2 px-5 font-semibold bg-components-buttonHover border-4 rounded-md transition-colors hover:bg-components-button"
-                                    }
-                                    onClick={() => setDifficulty("Hard")}
-                                >
-                                    Hard
-                                </button>
+                            <div className="mt-auto mb-0 py-2 px-5 text-black">
+                                Not available now
                             </div>
-                            <button className="mt-auto mb-0 py-2 px-5 text-white bg-components-nav rounded-lg transition-colors hover:bg-gray-700">
-                                Lets Play!
-                            </button>
                         </>
                     )}
                 </div>
