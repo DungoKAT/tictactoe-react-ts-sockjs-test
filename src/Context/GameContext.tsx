@@ -111,6 +111,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const socket = new SockJS(
+            // "http://localhost:8080/game"
             "https://tictactoe-javasb-ws-api-test-56fc563f6ba3.herokuapp.com/game"
         );
 

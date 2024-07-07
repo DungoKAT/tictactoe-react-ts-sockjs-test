@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import Login from "./Pages/Login";
 import Home from "./Pages/Home";
 import GameHistory from "./Components/HomeComponents/GameHistory.tsx";
+import GameWithBot from "./Components/HomeComponents/GameWithBot.tsx";
 import Game from "./Pages/Game.tsx";
 import PrivateRoute from "./Components/ProtectedRoute.tsx/PrivateRoute.tsx";
 import PublicRoute from "./Components/ProtectedRoute.tsx/PublicRoute.tsx";
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
                         path: "/game-histories/:gameId",
                         element: <GameHistory />,
                         loader: loader,
+                    },
+                    {
+                        path: "/game-bot",
+                        element: <GameWithBot />,
                     },
                 ],
             },

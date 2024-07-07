@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useLocation } from "react-router-dom";
 import Loader from "../../Pages/Loader";
-import { RxCross1 } from "react-icons/rx";
-import { BiCircle } from "react-icons/bi";
+import Board from "../Board";
 import { MdOutlineReplay } from "react-icons/md";
 import { IoMdSkipForward } from "react-icons/io";
 import { GrCaretNext, GrCaretPrevious } from "react-icons/gr";
@@ -60,6 +59,7 @@ const GameHistory = () => {
         setCurrentMove(0);
         setIsReplay(false);
     }, [gameBoard.size, location.pathname]);
+
     const handleReplay = () => {
         setBoardArrayReplay(
             new Array(gameBoard.size * gameBoard.size).fill(null)
@@ -67,6 +67,7 @@ const GameHistory = () => {
         setCurrentMove(0);
         setIsReplay(!isReplay);
     };
+
     const handleNextMove = () => {
         if (currentMove < allMoves.length) {
             const newBoard = [...boardArrayReplay];
@@ -79,6 +80,7 @@ const GameHistory = () => {
             setCurrentMove(currentMove + 1);
         }
     };
+
     const handlePrevMove = () => {
         if (currentMove > 0) {
             const newBoard = [...boardArrayReplay];
@@ -92,7 +94,7 @@ const GameHistory = () => {
     };
 
     return (
-        <div className="w-full h-full flex">
+        <>
             {loaderGameHistory === undefined ? (
                 <Loader />
             ) : (
@@ -101,7 +103,6 @@ const GameHistory = () => {
                         <Board
                             board={isReplay ? boardArrayReplay : boardArrayEnd}
                             size={gameBoard.size}
-                            allMoves={allMoves}
                         />
                         <button
                             className="mt-10 py-3 px-5 flex items-center text-2xl bg-components-buttonHover rounded-lg transition-colors hover:bg-components-button"
@@ -144,8 +145,46 @@ const GameHistory = () => {
                                 </button>
                             </div>
                         )}
+                        <div
+                            className="max-w-[500px] w-full mt-10 p-5 flex flex-col bg-components-sidenav rounded-lg 
+                            desktop1280:hidden 
+                            max-tablet640:max-w-[400px]
+                            max-mobile479:max-w-[300px]"
+                        >
+                            <div className="mb-5 flex justify-between max-tablet640:block">
+                                <h1 className="mb-3 text-3xl font-semibold">
+                                    Player X :
+                                </h1>
+                                <h1 className="mb-3 text-4xl font-semibold">
+                                    {loaderGameHistory.playerX.playerName}
+                                </h1>
+                            </div>
+                            <div className="mb-5 flex justify-between max-tablet640:block">
+                                <h1 className="mb-3 text-3xl font-semibold">
+                                    Player O :
+                                </h1>
+                                <h1 className="mb-3 text-4xl font-semibold">
+                                    {loaderGameHistory.playerO.playerName}
+                                </h1>
+                            </div>
+                            <div className="flex justify-between max-tablet640:block">
+                                <h1 className="mb-3 text-3xl font-semibold">
+                                    {loaderGameHistory.winner === "DRAW"
+                                        ? "The game is"
+                                        : "The winner is"}
+                                </h1>
+                                <h1 className="mb-3 text-4xl font-semibold">
+                                    {loaderGameHistory.winner === "DRAW"
+                                        ? "Draw"
+                                        : loaderGameHistory.playerX.markType ===
+                                          loaderGameHistory.winner
+                                        ? loaderGameHistory.playerX.playerName
+                                        : loaderGameHistory.playerO.playerName}
+                                </h1>
+                            </div>
+                        </div>
                     </div>
-                    <div className="max-w-[300px] w-full h-full p-5 flex flex-col bg-components-sidenav">
+                    <div className="max-w-[300px] w-full h-full p-5 flex flex-col bg-components-sidenav max-desktop1280:hidden">
                         <div className="mb-14">
                             <h1 className="mb-3 text-3xl font-semibold">
                                 Player X
@@ -180,53 +219,53 @@ const GameHistory = () => {
                     </div>
                 </>
             )}
-        </div>
+        </>
     );
 };
 
-interface BoardInfo {
-    board: string[];
-    size: number;
-    allMoves: Move[];
-}
+// interface BoardInfo {
+//     board: string[];
+//     size: number;
+//     allMoves: Move[];
+// }
 
-const Board = ({ board, size }: BoardInfo) => {
-    return (
-        <div
-            className={
-                (size === 3
-                    ? "grid-cols-3 grid-rows-3 gap-5"
-                    : size === 5
-                    ? "grid-cols-5 grid-rows-5 gap-4"
-                    : size === 7 && "grid-cols-7 grid-rows-7 gap-3") +
-                ` w-[620px] h-[620px] mt-20 p-5 grid bg-components-board rounded-xl`
-            }
-        >
-            {Array(size * size)
-                .fill(null)
-                .map((_, index) => (
-                    <SquareButton
-                        key={index}
-                        boardMark={board[index]}
-                        index={index}
-                    />
-                ))}
-        </div>
-    );
-};
+// const Board = ({ board, size }: BoardInfo) => {
+//     return (
+//         <div
+//             className={
+//                 (size === 3
+//                     ? "grid-cols-3 grid-rows-3 gap-5"
+//                     : size === 5
+//                     ? "grid-cols-5 grid-rows-5 gap-4"
+//                     : size === 7 && "grid-cols-7 grid-rows-7 gap-3") +
+//                 ` w-[620px] h-[620px] mt-20 p-5 grid bg-components-board rounded-xl`
+//             }
+//         >
+//             {Array(size * size)
+//                 .fill(null)
+//                 .map((_, index) => (
+//                     <SquareButton
+//                         key={index}
+//                         boardMark={board[index]}
+//                         index={index}
+//                     />
+//                 ))}
+//         </div>
+//     );
+// };
 
-interface SquareButtonType {
-    boardMark: string;
-    index: number;
-}
+// interface SquareButtonType {
+//     boardMark: string;
+//     index: number;
+// }
 
-const SquareButton = ({ boardMark }: SquareButtonType) => {
-    return (
-        <div className=" p-2 flex justify-center items-center text-9xl text-components-nav bg-components-sidenav rounded-lg">
-            {boardMark !== null &&
-                (boardMark === "X" ? <RxCross1 /> : <BiCircle />)}
-        </div>
-    );
-};
+// const SquareButton = ({ boardMark }: SquareButtonType) => {
+//     return (
+//         <div className=" p-2 flex justify-center items-center text-9xl text-components-nav bg-components-sidenav rounded-lg">
+//             {boardMark !== null &&
+//                 (boardMark === "X" ? <RxCross1 /> : <BiCircle />)}
+//         </div>
+//     );
+// };
 
 export default GameHistory;

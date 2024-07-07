@@ -20,6 +20,7 @@ const SquareButton = ({
     const checkIsPlayerTurn: boolean = turn === player;
     const isDisabled =
         !checkBoardMarkIsNull || !checkIsPlayerTurn || !isGameInProgress;
+    // console.log("Check Is Player Turn: ", checkIsPlayerTurn);
     return (
         <button
             className={
